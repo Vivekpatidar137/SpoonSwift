@@ -197,4 +197,30 @@ Special thanks to:
 - [Jest](https://jestjs.io/) for robust testing.
 - [Parcel](https://parceljs.org/) for efficient bundling.
 
+---
+
+## 🎯 Screenshots
+
+### Main Page
+
+#### 🍽️ Dish Carousel and 🪶 Header
+
+![SpoonSwift Carousel and Header](docs/Carousel.png)
+
+#### 🏬 Restaurants
+
+![SpoonSwift Restaurants](docs/Restaurants.png)
+![SpoonSwift Restaurants](docs/Restaurants2.png)
+
+### 📜 RestaurantMenu
+
+#### 🍽️📄 Menu page
+
+![SpoonSwift Restaurant Menu](docs/MenuPage.png)
+
+#### 🔽🔼 Accordion
+
+![SpoonSwift Restaurant Menu Accordion](docs/Accordion.png)
+![SpoonSwift Restaurant Menu Accordion](docs/Accordion2.png)
+
 Made with ❤️ by Vivek Patidar.
