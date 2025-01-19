@@ -1,11 +1,15 @@
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import CategoryItems from "./CategoryItems";
-import { clearCart } from "../utils/cartSlice";
-import { useDispatch } from "react-redux";
+import { clearCart, removeItem } from "../utils/cartSlice";
 
 function Cart() {
   const cartItems = useSelector((store) => store.cart.items);
   const dispatch = useDispatch();
+
+  const handleRemoveItem = (itemId) => {
+    dispatch(removeItem(itemId)); // Remove the item with the given id
+  };
+
   const handleClearCart = () => {
     dispatch(clearCart());
   };
@@ -27,7 +31,11 @@ function Cart() {
             </button>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <CategoryItems itemCards={cartItems} />
+              <CategoryItems
+                itemCards={cartItems}
+                isCart={true} // Indicate this is for the cart
+                onRemove={handleRemoveItem} // Pass the remove function
+              />
             </div>
           </>
         )}
