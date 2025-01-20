@@ -223,4 +223,9 @@ Special thanks to:
 ![SpoonSwift Restaurant Menu Accordion](docs/Accordion.png)
 ![SpoonSwift Restaurant Menu Accordion](docs/Accordion2.png)
 
+### 🛒 Cart
+
+![SpoonSwift Cart](docs/Cart.png)
+![SpoonSwift Cart](docs/Cart2.png)
+
 Made with ❤️ by Vivek Patidar.
