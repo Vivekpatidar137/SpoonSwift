@@ -1,4 +1,14 @@
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import Confetti from "react-confetti";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { clearCart } from "../utils/cartSlice";
+
 const CartTotal = ({ cartItems }) => {
+  const [showConfetti, setShowConfetti] = useState(false);
+  const dispatch = useDispatch();
+
   const calculateTotalPrice = () => {
     return cartItems.reduce((total, item) => {
       const price = item.card.info.price || item.card.info.defaultPrice;
@@ -7,6 +17,41 @@ const CartTotal = ({ cartItems }) => {
   };
 
   const totalPrice = calculateTotalPrice();
+
+  const handleCheckout = () => {
+    if (cartItems.length === 0) {
+      toast.warning(
+        "Your cart is empty. Add items before proceeding to checkout!",
+        {
+          position: "top-center",
+          autoClose: 3000,
+          theme: "light",
+        }
+      );
+      return;
+    }
+
+    // Show confetti
+    setShowConfetti(true);
+
+    // Trigger the success message
+    toast.success(
+      "🎉 Your order is successful! Thank you for shopping with us!",
+      {
+        position: "top-center",
+        autoClose: 5000,
+        theme: "light",
+      }
+    );
+
+    // Dispatch action to clear the cart
+    dispatch(clearCart());
+
+    // Hide confetti after 5 seconds
+    setTimeout(() => {
+      setShowConfetti(false);
+    }, 5000);
+  };
 
   return (
     <div className="w-full">
@@ -22,10 +67,19 @@ const CartTotal = ({ cartItems }) => {
           </h4>
           <h2 className="text-md font-semibold">₹{totalPrice / 100}</h2>
         </div>
-        <button className="w-full mt-6 bg-green-600 text-white px-6 py-3 rounded-full hover:bg-green-700 transition duration-300">
+        <button
+          onClick={handleCheckout}
+          className="w-full mt-6 bg-green-600 text-white px-6 py-3 rounded-full hover:bg-green-700 transition duration-300"
+        >
           Proceed to Checkout
         </button>
       </div>
+
+      {/* Confetti animation */}
+      {showConfetti && <Confetti />}
+
+      {/* Toast container for displaying the popup */}
+      <ToastContainer />
     </div>
   );
 };
