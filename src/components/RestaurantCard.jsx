@@ -1,5 +1,6 @@
 import { IMG_CDN_URL } from "./config";
 import label from "/src/myAssets/veg.png";
+import { FaStar } from "react-icons/fa";
 
 const RestaurantCard = ({
   name,
@@ -26,7 +27,8 @@ const RestaurantCard = ({
         <div className="flex items-center justify-between mt-2">
           {/* Rating Section */}
           <span className="flex items-center bg-green-600 text-white text-sm font-medium px-2 py-1 rounded">
-            ⭐ {avgRatingString}
+            <FaStar className="text-yellow-400 w-4 h-4 mr-1 drop-shadow-md" />{" "}
+            {avgRatingString}
           </span>
           <span className="text-sm text-gray-600">{costForTwo}</span>
         </div>
