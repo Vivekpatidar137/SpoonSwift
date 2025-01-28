@@ -12,7 +12,7 @@ const CartTotal = ({ cartItems }) => {
   const calculateTotalPrice = () => {
     return cartItems.reduce((total, item) => {
       const price = item.card.info.price || item.card.info.defaultPrice;
-      return total + price;
+      return total + price * item.quantity;
     }, 0);
   };
 

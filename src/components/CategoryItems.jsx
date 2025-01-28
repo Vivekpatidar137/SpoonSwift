@@ -1,6 +1,10 @@
 import { useDispatch } from "react-redux";
 import { IMG_CDN_URL } from "./config";
-import { addItems } from "../utils/cartSlice";
+import {
+  addItems,
+  increaseQuantity,
+  decreaseQuantity,
+} from "../utils/cartSlice";
 
 const CategoryItems = ({ itemCards, isCart, onRemove }) => {
   const dispatch = useDispatch();
@@ -9,10 +13,20 @@ const CategoryItems = ({ itemCards, isCart, onRemove }) => {
     dispatch(addItems(items));
   };
 
+  const handleIncreaseQuantity = (itemId) => {
+    dispatch(increaseQuantity(itemId));
+  };
+
+  const handleDecreaseQuantity = (itemId) => {
+    dispatch(decreaseQuantity(itemId));
+  };
+
   return (
     <div className="mt-4 space-y-8">
       {itemCards.map((items) => {
         const item = items?.card?.info;
+        const itemInCart = isCart ? items : null; // Check if the item is in the cart
+
         return (
           <div
             data-testid="categoryItems"
@@ -54,13 +68,24 @@ const CategoryItems = ({ itemCards, isCart, onRemove }) => {
                     alt={item.name}
                   />
                   {isCart ? (
-                    /* REMOVE button for cart */
-                    <button
-                      className="absolute top-2 right-2 bg-red-600 text-white text-sm px-4 py-1 rounded-full shadow-md hover:bg-red-700"
-                      onClick={() => onRemove(item.id)}
-                    >
-                      REMOVE
-                    </button>
+                    /* Quantity selector for cart */
+                    <div className="absolute top-2 right-2 bg-white rounded-full shadow-md flex items-center">
+                      <button
+                        className="px-2 py-1 text-gray-700 hover:bg-gray-100 rounded-l-full"
+                        onClick={() => handleDecreaseQuantity(item.id)}
+                      >
+                        -
+                      </button>
+                      <span className="px-2 text-sm font-semibold">
+                        {itemInCart?.quantity || 0}
+                      </span>
+                      <button
+                        className="px-2 py-1 text-gray-700 hover:bg-gray-100 rounded-r-full"
+                        onClick={() => handleIncreaseQuantity(item.id)}
+                      >
+                        +
+                      </button>
+                    </div>
                   ) : (
                     /* ADD button for other views */
                     <button

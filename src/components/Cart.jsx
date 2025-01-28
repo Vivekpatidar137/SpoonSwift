@@ -7,19 +7,23 @@ const Cart = () => {
   const cartItems = useSelector((store) => store.cart.items);
   const dispatch = useDispatch();
 
-  const handleRemoveItem = (itemId) => {
-    dispatch(removeItem(itemId)); // Remove the item with the given id
-  };
-
   const handleClearCart = () => {
     dispatch(clearCart());
   };
+
+  // Calculate total number of items in the cart
+  const totalItems = cartItems.reduce(
+    (total, item) => total + item.quantity,
+    0
+  );
 
   return (
     <div className="container mx-auto mt-10 p-4">
       <div className="grid grid-cols-1 lg:grid-cols-[2fr,1fr] gap-8">
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Your Cart</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            Your Cart ({totalItems} items)
+          </h2>
 
           {cartItems.length === 0 ? (
             <p className="text-lg text-gray-600">Your cart is empty.</p>
@@ -35,8 +39,8 @@ const Cart = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <CategoryItems
                   itemCards={cartItems}
-                  isCart={true} // Indicate this is for the cart
-                  onRemove={handleRemoveItem} // Pass the remove function
+                  isCart={true}
+                  onRemove={(itemId) => dispatch(removeItem(itemId))}
                 />
               </div>
             </>
