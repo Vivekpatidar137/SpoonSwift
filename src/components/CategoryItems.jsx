@@ -6,7 +6,7 @@ import {
   decreaseQuantity,
 } from "../utils/cartSlice";
 
-const CategoryItems = ({ itemCards, isCart, onRemove }) => {
+const CategoryItems = ({ itemCards, isCart }) => {
   const dispatch = useDispatch();
 
   const handleItems = (items) => {
@@ -25,7 +25,7 @@ const CategoryItems = ({ itemCards, isCart, onRemove }) => {
     <div className="mt-4 space-y-8">
       {itemCards.map((items) => {
         const item = items?.card?.info;
-        const itemInCart = isCart ? items : null; // Check if the item is in the cart
+        const itemInCart = isCart ? items : null;
 
         return (
           <div
@@ -58,7 +58,6 @@ const CategoryItems = ({ itemCards, isCart, onRemove }) => {
               )}
             </div>
 
-            {/* Item image or action buttons */}
             <div className="relative ml-6 w-40 h-40 flex-shrink-0 flex items-center justify-center">
               {item.imageId ? (
                 <>
@@ -87,7 +86,6 @@ const CategoryItems = ({ itemCards, isCart, onRemove }) => {
                       </button>
                     </div>
                   ) : (
-                    /* ADD button for other views */
                     <button
                       className="absolute top-2 right-2 bg-green-600 text-white text-sm px-4 py-1 rounded-full shadow-md hover:bg-green-700"
                       onClick={() => handleItems(items)}
@@ -96,19 +94,30 @@ const CategoryItems = ({ itemCards, isCart, onRemove }) => {
                     </button>
                   )}
                 </>
+              ) : isCart ? (
+                <div className="flex items-center space-x-4">
+                  <button
+                    className="px-2 py-1 bg-gray-200 text-gray-700 rounded-l-md hover:bg-gray-300"
+                    onClick={() => handleDecreaseQuantity(item.id)}
+                  >
+                    -
+                  </button>
+                  <span className="px-2 text-md font-semibold">
+                    {itemInCart?.quantity || 0}
+                  </span>
+                  <button
+                    className="px-2 py-1 bg-gray-200 text-gray-700 rounded-r-md hover:bg-gray-300"
+                    onClick={() => handleIncreaseQuantity(item.id)}
+                  >
+                    +
+                  </button>
+                </div>
               ) : (
-                /* Centered button if no image */
                 <button
-                  className={`w-24 h-10 ${
-                    isCart ? "bg-red-600" : "bg-green-600"
-                  } text-white text-lg font-semibold rounded-lg shadow-md hover:${
-                    isCart ? "bg-red-700" : "bg-green-700"
-                  } flex items-center justify-center`}
-                  onClick={() =>
-                    isCart ? onRemove(item.id) : handleItems(items)
-                  }
+                  className="w-24 h-10 bg-green-600 text-white text-lg font-semibold rounded-lg shadow-md hover:bg-green-700 flex items-center justify-center"
+                  onClick={() => handleItems(items)}
                 >
-                  {isCart ? "REMOVE" : "ADD"}
+                  ADD
                 </button>
               )}
             </div>
