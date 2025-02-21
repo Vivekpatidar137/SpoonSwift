@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { IMG_CDN_URL } from "./config";
+import { FaCheck } from "react-icons/fa";
 import {
   addItems,
   increaseQuantity,
@@ -8,9 +10,11 @@ import {
 
 const CategoryItems = ({ itemCards, isCart }) => {
   const dispatch = useDispatch();
+  const [addedItems, setAddedItems] = useState({}); // Track added items
 
   const handleItems = (items) => {
     dispatch(addItems(items));
+    setAddedItems((prev) => ({ ...prev, [items.card.info.id]: true })); // Mark item as added
   };
 
   const handleIncreaseQuantity = (itemId) => {
@@ -26,6 +30,7 @@ const CategoryItems = ({ itemCards, isCart }) => {
       {itemCards.map((items) => {
         const item = items?.card?.info;
         const itemInCart = isCart ? items : null;
+        const isAdded = addedItems[item.id]; // Check if the item is added
 
         return (
           <div
@@ -87,10 +92,21 @@ const CategoryItems = ({ itemCards, isCart }) => {
                     </div>
                   ) : (
                     <button
-                      className="absolute top-2 right-2 bg-green-600 text-white text-sm px-4 py-1 rounded-full shadow-md hover:bg-green-700"
+                      className={`absolute top-2 right-2 text-sm px-4 py-1 rounded-full shadow-md flex items-center justify-center gap-2 transition-all duration-300 ${
+                        isAdded
+                          ? "bg-gray-600 text-white pointer-events-none"
+                          : "bg-green-600 text-white hover:bg-green-700"
+                      }`}
                       onClick={() => handleItems(items)}
                     >
-                      ADD
+                      {isAdded ? (
+                        <>
+                          <FaCheck className="inline-block animate-bounce" />
+                          <span>Added</span>
+                        </>
+                      ) : (
+                        "ADD"
+                      )}
                     </button>
                   )}
                 </>
@@ -114,10 +130,21 @@ const CategoryItems = ({ itemCards, isCart }) => {
                 </div>
               ) : (
                 <button
-                  className="w-24 h-10 bg-green-600 text-white text-lg font-semibold rounded-lg shadow-md hover:bg-green-700 flex items-center justify-center"
+                  className={`w-24 h-10 text-lg font-semibold rounded-lg shadow-md flex items-center justify-center gap-2 transition-all duration-300 ${
+                    isAdded
+                      ? "bg-gray-600 text-white pointer-events-none"
+                      : "bg-green-600 text-white hover:bg-green-700"
+                  }`}
                   onClick={() => handleItems(items)}
                 >
-                  ADD
+                  {isAdded ? (
+                    <>
+                      <FaCheck className="inline-block animate-bounce" />
+                      <span>Added</span>
+                    </>
+                  ) : (
+                    "ADD"
+                  )}
                 </button>
               )}
             </div>

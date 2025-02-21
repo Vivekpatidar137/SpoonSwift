@@ -3,7 +3,9 @@ module.exports = {
   content: ["./src/**/*.{html,jsx}"],
   theme: {
     extend: {
-      // Custom utilities can also be added here if needed
+      animation: {
+        bounce: "bounce 1s ease-in-out 1",
+      },
     },
   },
   plugins: [
