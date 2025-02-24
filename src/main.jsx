@@ -13,7 +13,6 @@ import UserContext from "./utils/UserContext";
 import { Provider } from "react-redux";
 import appStore from "./utils/appStore";
 
-
 const ExpressMart = lazy(() => import("./components/ExpressMart"));
 
 const AppLayout = () => {
@@ -23,7 +22,7 @@ const AppLayout = () => {
   useEffect(() => {
     // Making API cal to send userName and password
     const data = {
-      name: "Vivek Patidar",
+      name: "Anonymous Foodie",
     };
     setUserName(data.name);
   }, []);
@@ -51,7 +50,7 @@ const appRouter = createBrowserRouter([
       { path: "/about", element: <About /> },
       { path: "/contact", element: <Contact /> },
       { path: "/restaurant/:id", element: <RestaurantMenu /> },
-      {path: "/cart", element: <Cart />},
+      { path: "/cart", element: <Cart /> },
       {
         path: "/expressMart",
         element: (
