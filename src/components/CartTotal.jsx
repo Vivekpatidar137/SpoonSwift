@@ -5,7 +5,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { clearCart } from "../utils/cartSlice";
 
-const CartTotal = ({ cartItems }) => {
+const CartTotal = ({ cartItems, onCheckoutComplete }) => {
   const [showConfetti, setShowConfetti] = useState(false);
   const dispatch = useDispatch();
 
@@ -47,6 +47,9 @@ const CartTotal = ({ cartItems }) => {
     // Dispatch action to clear the cart
     dispatch(clearCart());
 
+    // Notify parent component
+    onCheckoutComplete && onCheckoutComplete();
+
     // Hide confetti after 5 seconds
     setTimeout(() => {
       setShowConfetti(false);
@@ -54,7 +57,7 @@ const CartTotal = ({ cartItems }) => {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full relative">
       <div className="bg-gray-50 p-6 rounded-lg shadow-lg w-full">
         <h3 className="text-2xl font-bold text-gray-800 mb-4">Order Summary</h3>
         <p className="text-gray-600 mb-6">
@@ -78,8 +81,29 @@ const CartTotal = ({ cartItems }) => {
       {/* Confetti animation */}
       {showConfetti && <Confetti />}
 
-      {/* Toast container for displaying the popup */}
-      <ToastContainer />
+      {/* Toast container with fixed positioning */}
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{
+          top: "80px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          zIndex: 10000,
+        }}
+        toastStyle={{
+          marginTop: "20px",
+          zIndex: 10000,
+        }}
+      />
     </div>
   );
 };
