@@ -3,34 +3,56 @@
 exports[`Should match snapshot 1`] = `
 <div>
   <div
-    class="w-72 border border-gray-300 rounded-lg m-4 bg-white shadow-lg transition-transform transform hover:translate-y-[-0.125rem] relative"
+    class="w-72 border border-gray-200 rounded-lg bg-white shadow-md transition-transform transform hover:scale-105 hover:shadow-lg m-4"
     data-testid="resCard"
   >
     <img
-      class="w-full h-52 object-cover rounded-t-lg"
+      alt="Ratlami Teekha"
+      class="w-full h-48 object-cover rounded-t-lg"
       src="https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_660/6af9332845d39b846914eb581f94fa76"
     />
     <div
-      class="p-4"
+      class="p-5"
     >
       <h2
-        class="text-lg font-semibold"
+        class="text-lg font-semibold truncate"
       >
         Ratlami Teekha
       </h2>
-      <h3
-        class="text-sm text-gray-600"
-      >
-        4.0
-         star • 
-        ₹199 for two
-      </h3>
       <div
-        class="text-sm text-gray-500 overflow-hidden h-10"
+        class="flex items-center justify-between mt-2"
       >
-         
-        Snacks
+        <span
+          class="flex items-center bg-green-600 text-white text-sm font-medium px-2 py-1 rounded"
+        >
+          <svg
+            class="text-yellow-400 w-4 h-4 mr-1 drop-shadow-md"
+            fill="currentColor"
+            height="1em"
+            stroke="currentColor"
+            stroke-width="0"
+            viewBox="0 0 576 512"
+            width="1em"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z"
+            />
+          </svg>
+           
+          4.0
+        </span>
+        <span
+          class="text-sm text-gray-600"
+        >
+          ₹199 for two
+        </span>
       </div>
+      <p
+        class="text-sm text-gray-500 mt-3 leading-tight truncate"
+      >
+        Snacks
+      </p>
     </div>
   </div>
 </div>
