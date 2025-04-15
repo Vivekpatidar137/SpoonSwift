@@ -30,7 +30,6 @@ const store = configureStore({
   },
 });
 
-
 describe("RestaurantMenu Integration Tests", () => {
   // Test to verify if the RestaurantMenu component renders correctly
   test("should render RestaurantMenu component with fetched data", async () => {
@@ -82,7 +81,7 @@ describe("RestaurantMenu Integration Tests", () => {
     fireEvent.click(categoryHeader);
 
     // Check that the cart is initially empty
-    const cartEmptyMessage = screen.getByText("Your cart is empty.");
+    const cartEmptyMessage = screen.getByText("Your cart is empty");
     expect(cartEmptyMessage).toBeInTheDocument();
 
     // Simulate adding an item to the cart
