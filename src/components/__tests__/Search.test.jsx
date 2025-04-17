@@ -33,7 +33,7 @@ test("Should render body component and handle search functionality", async () =>
 
   // Check if the initial number of restaurant cards displayed is correct
   const cardsBeforeSearch = screen.getAllByTestId("resCard");
-  expect(cardsBeforeSearch.length).toBe(8);
+  expect(cardsBeforeSearch.length).toBe(20);
 
   // Get the search button and input field from the DOM
   const SearchBtn = screen.getByRole("button", { name: "Search" });
@@ -58,7 +58,7 @@ test("Should render veg label only for veg restaurants", async () => {
   );
 
   const vegLabel = screen.getAllByAltText("veg label");
-  expect(vegLabel.length).toBe(6);
+  expect(vegLabel.length).toBe(14);
 });
 
 test("Should update restaurant list when performing multiple searches", async () => {
@@ -70,7 +70,7 @@ test("Should update restaurant list when performing multiple searches", async ()
     )
   );
   const cardsBeforeSearch = screen.getAllByTestId("resCard");
-  expect(cardsBeforeSearch.length).toBe(8);
+  expect(cardsBeforeSearch.length).toBe(20);
 
   const searchInput = screen.getByTestId("searchInput");
   const searchBtn = screen.getByRole("button", { name: "Search" });
@@ -84,7 +84,7 @@ test("Should update restaurant list when performing multiple searches", async ()
 
   // Now search for "Jalsara Hotel And Restaurant"
   fireEvent.change(searchInput, {
-    target: { value: "Jalsara Hotel And Restaurant" },
+    target: { value: "Krishna Fast Food & Restaurant" },
   });
   fireEvent.click(searchBtn);
 
