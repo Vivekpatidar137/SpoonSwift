@@ -6,78 +6,144 @@ const useRestaurantMenu = (id) => {
   const [restaurantMenu, setRestaurantMenu] = useState({});
   const [menuItems, setMenuItems] = useState([]);
   const [error, setError] = useState(null);
+  const [attempts, setAttempts] = useState(0);
 
   useEffect(() => {
-    getRestaurantInfo();
-  }, [id]); // Added id dependency to re-fetch if id changes
+    if (id) getRestaurantInfo();
+  }, [id]);
 
   async function getRestaurantInfo() {
     setIsLoading(true);
-    try {
-      const swiggyUrl = FETCH_MENU_URL + id;
+    setError(null);
+    setAttempts((prev) => prev + 1);
 
-      // Try multiple proxies in sequence if one fails
-      let data;
-      let json;
+    const swiggyUrl = FETCH_MENU_URL + id;
 
-      try {
-        // Try allorigins first
-        data = await fetch(
+    const proxyServices = [
+      {
+        name: "corsio",
+        url: "https://corsproxy.io/?" + encodeURIComponent(swiggyUrl),
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          Accept: "application/json",
+          Referer: "https://www.swiggy.com/",
+        },
+      },
+      {
+        name: "allorigins",
+        url:
           "https://api.allorigins.win/raw?url=" + encodeURIComponent(swiggyUrl),
-          {
-            headers: {
-              "User-Agent":
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            },
-          }
-        );
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          Accept: "application/json",
+        },
+      },
+      {
+        name: "thingproxy",
+        url: "https://thingproxy.freeboard.io/fetch/" + swiggyUrl,
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          Accept: "application/json",
+          Origin: "https://www.swiggy.com",
+        },
+      },
+    ];
 
-        if (data.ok) {
-          json = await data.json();
-        } else {
-          throw new Error("First proxy failed");
-        }
-      } catch (firstProxyError) {
-        console.log("First proxy failed, trying thingproxy...");
-        // Try thingproxy as fallback
-        data = await fetch(
-          "https://thingproxy.freeboard.io/fetch/" + swiggyUrl,
-          {
-            headers: {
-              "User-Agent":
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            },
-          }
-        );
+    const fetchWithTimeout = (resource, options = {}) => {
+      const { timeout = 10000 } = options;
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeout);
 
-        if (!data.ok) {
-          throw new Error(`Failed to fetch: ${data.status}`);
-        }
+      return fetch(resource, {
+        ...options,
+        signal: controller.signal,
+      }).finally(() => clearTimeout(id));
+    };
 
-        json = await data.json();
+    const validateResponse = (json) => {
+      if (
+        !json ||
+        !json.data ||
+        !Array.isArray(json.data.cards) ||
+        json.data.cards.length < 5
+      ) {
+        throw new Error("Invalid or incomplete menu data");
       }
 
-      // Process the data
-      setRestaurantMenu(json?.data?.cards?.[2]?.card?.card?.info || {});
+      const info = json?.data?.cards?.[2]?.card?.card?.info;
+      const menuCategories =
+        json?.data?.cards?.[4]?.groupedCard?.cardGroupMap?.REGULAR?.cards;
 
-      const categories =
-        json?.data?.cards?.[4]?.groupedCard?.cardGroupMap?.REGULAR?.cards.filter(
-          (category) =>
-            category.card.card["@type"] ===
-            "type.googleapis.com/swiggy.presentation.food.v2.ItemCategory"
-        );
+      if (!info || !Array.isArray(menuCategories)) {
+        throw new Error("Missing menu information or categories");
+      }
 
-      setMenuItems(categories || []);
-      setError(null);
-    } catch (err) {
-      console.error("Error fetching restaurant menu:", err);
-      setError("Failed to load restaurant menu. Please try again later.");
-      setRestaurantMenu({});
-      setMenuItems([]);
-    } finally {
-      setIsLoading(false);
+      return true;
+    };
+
+    const processData = (json) => {
+      try {
+        validateResponse(json);
+
+        const info = json.data.cards[2].card.card.info;
+        const categories =
+          json.data.cards[4].groupedCard.cardGroupMap.REGULAR.cards.filter(
+            (cat) =>
+              cat.card.card["@type"] ===
+              "type.googleapis.com/swiggy.presentation.food.v2.ItemCategory"
+          );
+
+        setRestaurantMenu(info || {});
+        setMenuItems(categories || []);
+        return true;
+      } catch (err) {
+        console.error("Validation failed:", err);
+        return false;
+      }
+    };
+
+    for (const proxy of proxyServices) {
+      try {
+        console.log(`Trying ${proxy.name}...`);
+
+        const response = await fetchWithTimeout(proxy.url, {
+          headers: proxy.headers,
+          timeout: 15000,
+        });
+
+        if (!response.ok) {
+          console.warn(`${proxy.name} returned status ${response.status}`);
+          continue;
+        }
+
+        const data = await response.json();
+        if (processData(data)) {
+          console.log(`Successfully fetched menu from ${proxy.name}`);
+          setIsLoading(false);
+          return;
+        } else {
+          console.warn(`${proxy.name} returned invalid data`);
+        }
+      } catch (err) {
+        console.error(`Error using ${proxy.name}:`, err.message);
+      }
     }
+
+    // All proxies failed
+    setError(
+      `Failed to load restaurant menu after ${attempts} attempts. Please try again later.`
+    );
+    setRestaurantMenu({});
+    setMenuItems([]);
+    setIsLoading(false);
   }
+
+  const retryFetch = () => {
+    if (!isLoading) getRestaurantInfo();
+  };
 
   return {
     restaurantMenu,
@@ -85,6 +151,8 @@ const useRestaurantMenu = (id) => {
     isLoading,
     error,
     refetch: getRestaurantInfo,
+    retry: retryFetch,
+    attempts,
   };
 };
 
