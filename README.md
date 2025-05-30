@@ -2,6 +2,10 @@
 
 SpoonSwift is an innovative application designed to bring a seamless and engaging culinary exploration experience. From delicious dish displays in carousels to robust testing setups, this project is a perfect playground for developers experimenting with cutting-edge ReactJS setups, parcel-based bundling, and Tailwind CSS for responsive designs.
 
+## 🌐 Live Demo
+
+SpoonSwift is hosted on **Vercel** — check it out here: [Live Demo](https://spoon-swift.vercel.app)
+
 ---
 
 ## ✨ **Features**
