@@ -33,3 +33,6 @@ dist/
 # Test coverage reports
 coverage/
 .vercel
+
+# Local Netlify folder
+.netlify
