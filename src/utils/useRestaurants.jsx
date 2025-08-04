@@ -16,8 +16,20 @@ const useRestaurants = () => {
   const defaultLat = 23.1793;
   const defaultLng = 75.7849;
 
+  // Get API URL based on environment
+  const getApiUrl = () => {
+    // For local development with netlify dev
+    if (
+      typeof window !== "undefined" &&
+      window.location.hostname === "localhost"
+    ) {
+      return "http://localhost:8888/.netlify/functions";
+    }
+    // For production - my actual Netlify functions URL
+    return "https://spoonswift-api.netlify.app/.netlify/functions";
+  };
+
   useEffect(() => {
-    // Only try fetching once location is ready or fallback to default
     if (!geoLoading) {
       getRestaurant();
     }
@@ -30,107 +42,57 @@ const useRestaurants = () => {
 
     const latitude = lat || defaultLat;
     const longitude = lng || defaultLng;
+    const apiBaseUrl = getApiUrl();
+    const apiUrl = `${apiBaseUrl}/restaurants?lat=${latitude}&lng=${longitude}`;
 
-    const swiggyUrl = `https://www.swiggy.com/dapi/restaurants/list/v5?offset=0&is-seo-homepage-enabled=true&lat=${latitude}&lng=${longitude}&carousel=true&third_party_vendor=1`;
+    try {
+      console.log("Fetching restaurants from Netlify Functions:", apiUrl);
 
-    const proxyServices = [
-      {
-        name: "corsio",
-        url: "https://corsproxy.io/?" + encodeURIComponent(swiggyUrl),
-        headers: { Accept: "application/json" },
-      },
-      {
-        name: "allorigins",
-        url:
-          "https://api.allorigins.win/raw?url=" + encodeURIComponent(swiggyUrl),
-        headers: { Accept: "application/json" },
-      },
-      {
-        name: "thingproxy",
-        url: "https://thingproxy.freeboard.io/fetch/" + swiggyUrl,
+      const response = await fetch(apiUrl, {
+        method: "GET",
         headers: {
-          Accept: "application/json",
-          Origin: "https://www.swiggy.com",
+          "Content-Type": "application/json",
         },
-      },
-    ];
+      });
 
-    const validateResponse = (json) => {
-      if (!json || !json.data) throw new Error("Invalid response format");
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("API Response Error:", errorText);
+        throw new Error(`API error! status: ${response.status}`);
+      }
 
+      const data = await response.json();
+
+      // Check if API returned an error
+      if (data.error) {
+        throw new Error(data.message || "API returned an error");
+      }
+
+      // Process the data
+      const carouselData = data?.data?.cards?.[0]?.card?.card || [];
+      const title = data?.data?.cards?.[1]?.card?.card?.header?.title || "";
       const restaurantsData =
-        json?.data?.cards?.[1]?.card?.card?.gridElements?.infoWithStyle
-          ?.restaurants;
+        data?.data?.cards?.[1]?.card?.card?.gridElements?.infoWithStyle
+          ?.restaurants || [];
 
       if (!Array.isArray(restaurantsData) || restaurantsData.length === 0) {
         throw new Error("No restaurant data found");
       }
 
-      return true;
-    };
+      setCarouselItems(carouselData);
+      setHeaderTitle(title);
+      setRestaurants(restaurantsData);
+      setOriginalRestaurants(restaurantsData);
+      setIsLoading(false);
 
-    const processData = (json) => {
-      try {
-        validateResponse(json);
-
-        const carouselData = json?.data?.cards?.[0]?.card?.card || [];
-        const title = json?.data?.cards?.[1]?.card?.card?.header?.title || "";
-        const restaurantsData =
-          json?.data?.cards?.[1]?.card?.card?.gridElements?.infoWithStyle
-            ?.restaurants || [];
-
-        setCarouselItems(carouselData);
-        setHeaderTitle(title);
-        setRestaurants(restaurantsData);
-        setOriginalRestaurants(restaurantsData);
-        return true;
-      } catch (err) {
-        console.error("Response validation failed:", err);
-        return false;
-      }
-    };
-
-    const fetchWithTimeout = (resource, options = {}) => {
-      const { timeout = 10000 } = options;
-      const controller = new AbortController();
-      const id = setTimeout(() => controller.abort(), timeout);
-
-      return fetch(resource, {
-        ...options,
-        signal: controller.signal,
-      }).finally(() => clearTimeout(id));
-    };
-
-    for (const proxy of proxyServices) {
-      try {
-        console.log(`Attempting to fetch with ${proxy.name}...`);
-        const response = await fetchWithTimeout(proxy.url, {
-          headers: proxy.headers,
-          timeout: 5000,
-        });
-
-        if (!response.ok) {
-          console.warn(`${proxy.name} returned status ${response.status}`);
-          continue;
-        }
-
-        const data = await response.json();
-        console.log(`Received data from ${proxy.name}, validating...`);
-
-        if (processData(data)) {
-          console.log(`Successfully loaded data using ${proxy.name}`);
-          setIsLoading(false);
-          return;
-        }
-      } catch (err) {
-        console.error(`Error with ${proxy.name}:`, err.message);
-      }
+      console.log(`Successfully loaded ${restaurantsData.length} restaurants`);
+    } catch (err) {
+      console.error("Error fetching restaurants:", err);
+      setError(
+        `Failed to load restaurants (Attempt ${attempts}): ${err.message}`
+      );
+      setIsLoading(false);
     }
-
-    setError(
-      `Failed to load restaurants after ${attempts} attempts. Please try again later.`
-    );
-    setIsLoading(false);
   }
 
   const retryFetch = () => {
