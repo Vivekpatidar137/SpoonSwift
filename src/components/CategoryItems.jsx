@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { IMG_CDN_URL } from "./config";
@@ -26,7 +26,6 @@ const CategoryItems = ({ itemCards, isCart }) => {
     dispatch(decreaseQuantity(itemId));
   };
 
-  // Animation variants
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
@@ -54,22 +53,18 @@ const CategoryItems = ({ itemCards, isCart }) => {
             initial="hidden"
             animate="visible"
             exit="exit"
-            layout // Smooth layout transitions
+            layout
           >
             {/* Item info */}
             <div className="flex-1 mr-6 text-left">
               <h2 className="text-xl font-semibold text-gray-800">
                 {item.name}
               </h2>
-              {item.price ? (
+              {item.price || item.defaultPrice ? (
                 <h2 className="text-lg text-gray-900 font-bold mt-2">
-                  ₹{item.price / 100}
+                  ₹{(item.price || item.defaultPrice) / 100}
                 </h2>
-              ) : (
-                <h2 className="text-lg text-gray-900 font-bold mt-2">
-                  ₹{item.defaultPrice / 100}
-                </h2>
-              )}
+              ) : null}
               {item.ratings?.aggregatedRating?.rating && (
                 <h4 className="text-md text-green-600 font-medium mt-2">
                   {item.ratings.aggregatedRating.rating} ★ (
@@ -81,6 +76,7 @@ const CategoryItems = ({ itemCards, isCart }) => {
               )}
             </div>
 
+            {/* Image or Button */}
             <div className="relative ml-6 w-40 h-40 flex-shrink-0 flex items-center justify-center">
               {item.imageId ? (
                 <>
@@ -90,7 +86,6 @@ const CategoryItems = ({ itemCards, isCart }) => {
                     alt={item.name}
                   />
                   {isCart ? (
-                    /* Quantity selector for cart */
                     <motion.div
                       className="absolute top-2 right-2 bg-white rounded-full shadow-md flex items-center"
                       variants={buttonVariants}
@@ -137,27 +132,52 @@ const CategoryItems = ({ itemCards, isCart }) => {
                   )}
                 </>
               ) : (
-                /* Fallback for items without images */
-                <motion.div
-                  className="flex items-center space-x-4"
-                  variants={buttonVariants}
-                >
-                  <button
-                    className="px-2 py-1 bg-gray-200 text-gray-700 rounded-l-md hover:bg-gray-300"
-                    onClick={() => handleDecreaseQuantity(item.id)}
-                  >
-                    -
-                  </button>
-                  <span className="px-2 text-md font-semibold">
-                    {itemInCart?.quantity || 0}
-                  </span>
-                  <button
-                    className="px-2 py-1 bg-gray-200 text-gray-700 rounded-r-md hover:bg-gray-300"
-                    onClick={() => handleIncreaseQuantity(item.id)}
-                  >
-                    +
-                  </button>
-                </motion.div>
+                // Fallback for no image
+                <div className="w-full flex flex-col items-center justify-center">
+                  {!itemInCart ? (
+                    <motion.button
+                      className={`w-full py-2 px-4 text-lg rounded-md font-semibold ${
+                        isAdded
+                          ? "bg-gray-600 text-white pointer-events-none"
+                          : "bg-green-600 text-white hover:bg-green-700"
+                      }`}
+                      onClick={() => handleItems(items)}
+                      variants={buttonVariants}
+                      whileHover={!isAdded ? "hover" : {}}
+                      whileTap={!isAdded ? "tap" : {}}
+                    >
+                      {isAdded ? (
+                        <div className="flex items-center justify-center gap-2">
+                          <FaCheck className="animate-bounce" />
+                          <span>Added</span>
+                        </div>
+                      ) : (
+                        "ADD"
+                      )}
+                    </motion.button>
+                  ) : (
+                    <motion.div
+                      className="flex justify-center items-center space-x-4"
+                      variants={buttonVariants}
+                    >
+                      <button
+                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded-l-md hover:bg-gray-300 text-xl"
+                        onClick={() => handleDecreaseQuantity(item.id)}
+                      >
+                        -
+                      </button>
+                      <span className="px-4 text-lg font-semibold">
+                        {itemInCart?.quantity || 0}
+                      </span>
+                      <button
+                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded-r-md hover:bg-gray-300 text-xl"
+                        onClick={() => handleIncreaseQuantity(item.id)}
+                      >
+                        +
+                      </button>
+                    </motion.div>
+                  )}
+                </div>
               )}
             </div>
           </motion.div>
